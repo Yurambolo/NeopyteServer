@@ -1,1 +1,1 @@
-web: gunicorn neophyteserver.wsgi --log-file -
+web: gunicorn NeophyteServer.wsgi --log-file -
