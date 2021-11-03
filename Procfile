@@ -1,1 +1,1 @@
-web: gunicorn pacific-spire-69544.wsgi --log-file -
+web: gunicorn NeopyteServer.wsgi --log-file -
