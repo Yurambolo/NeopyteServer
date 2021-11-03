@@ -1,1 +1,1 @@
-web: gunicorn NeophyteServer.wsgi --log-file -
+web: gunicorn pacific-spire-69544.wsgi --log-file -
