@@ -59,3 +59,32 @@ class User(AbstractBaseUser, PermissionsMixin):
             'refresh': str(refresh),
             'access': str(refresh.access_token)
         }
+
+
+class Vacancy(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    key_words = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
+class Candidate(models.Model):
+    email = models.EmailField(max_length=255)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    sv_file = models.BinaryField(null=True)
+    vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.first_name
+
+
+class Interview(models.Model):
+    candidate = models.ForeignKey(Candidate, models.CASCADE)
+    datetime = models.DateTimeField()
+    link = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return "{} {}".format(str(self.datetime), str(self.candidate))
