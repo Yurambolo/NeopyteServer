@@ -36,6 +36,22 @@ class ExampleView(APIView):
         return Response(content)
 
 
+class UserInfoView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication, JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        user = User.objects.filter(id=request.user.id).get()
+        content = dict(
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            company=user.company,
+            gender=user.gender
+        )
+        return Response(content)
+
+
 class CandidateViewSet(viewsets.ModelViewSet):
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer

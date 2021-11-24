@@ -1,7 +1,8 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from .views import MyObtainTokenPairView, RegisterView, ExampleView, CandidateViewSet, VacancyViewSet, InterviewViewSet
+from .views import MyObtainTokenPairView, RegisterView, ExampleView, CandidateViewSet, VacancyViewSet, InterviewViewSet, \
+    UserInfoView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -15,6 +16,7 @@ urlpatterns = [
     path('auth/login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/register/', RegisterView.as_view(), name='auth_register'),
     path('test/', ExampleView.as_view()),
+    path('user/info/', UserInfoView.as_view()),
     path('', include(router.urls)),
     path('rest/', include('rest_framework.urls', namespace='rest_framework')),
 ]
