@@ -15,4 +15,4 @@ class CandidateForm(forms.Form):
     email = forms.EmailField()
     first_name = forms.CharField(max_length=100)
     last_name = forms.CharField(max_length=100)
-    sv_file = forms.FileField()
+    sv_file = forms.FileField(allow_empty_file=True)

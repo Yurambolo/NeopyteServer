@@ -1,16 +1,15 @@
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, viewsets
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import User, Candidate, Vacancy, Interview
 from .serializers import MyTokenObtainPairSerializer, RegisterSerializer, CandidateSerializer, VacancySerializer, \
-    InterviewSerializer
+    InterviewSerializer, UserSerializer
 
 
 class MyObtainTokenPairView(TokenObtainPairView):
@@ -22,18 +21,6 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
-
-
-class ExampleView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication, JWTTokenUserAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, format=None):
-        content = {
-            'user': str(User.objects.filter(id=request.user.id).first()),  # `django.contrib.auth.User` instance.
-            'auth': str(request.auth),  # None
-        }
-        return Response(content)
 
 
 class UserInfoView(APIView):
@@ -52,11 +39,26 @@ class UserInfoView(APIView):
         return Response(content)
 
 
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [SessionAuthentication, BasicAuthentication, JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
 class CandidateViewSet(viewsets.ModelViewSet):
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication, JWTTokenUserAuthentication]
     permission_classes = [IsAuthenticated]
+
+    # def retrieve(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(instance)
+    #     response = Response(serializer.data)
+    #     if instance.sv_file:
+    #         response.
+    #     return response
 
 
 class VacancyViewSet(viewsets.ModelViewSet):
@@ -71,4 +73,3 @@ class InterviewViewSet(viewsets.ModelViewSet):
     serializer_class = InterviewSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication, JWTTokenUserAuthentication]
     permission_classes = [IsAuthenticated]
-
