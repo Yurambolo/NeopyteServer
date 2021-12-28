@@ -1,4 +1,5 @@
 from pathlib import Path
+from neophyte_analyzer.emotion_analyzer import EmotionAnalyzer
 import django_heroku
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -69,9 +70,18 @@ WSGI_APPLICATION = 'NeopyteServer.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+
+        'NAME': 'neophyte_db',
+
+        'USER': 'postgres',
+
+        'PASSWORD': '159753046',
+
+        'HOST': 'localhost',
+
+        'PORT': '5432',
+    },
 }
 
 # Password validation
@@ -109,6 +119,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+EMOTION_ANALYZER = EmotionAnalyzer()
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

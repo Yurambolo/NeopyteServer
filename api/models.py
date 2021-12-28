@@ -88,3 +88,12 @@ class Interview(models.Model):
 
     def __str__(self):
         return "{} {}".format(str(self.datetime), str(self.candidate))
+
+
+class InterviewProgress(models.Model):
+    interview = models.ForeignKey(Interview, models.CASCADE)
+    datetime = models.DateTimeField()
+    result = models.JSONField()
+
+    def __str__(self):
+        return "{} - {}".format(str(self.interview), str(self.datetime))
