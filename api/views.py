@@ -1,3 +1,11 @@
+import base64
+import json
+from datetime import datetime
+
+import cv2
+import numpy as np
+import pandas as pd
+from django.http import HttpResponseBadRequest
 from rest_framework import generics, viewsets
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import AllowAny
@@ -7,7 +15,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import User, Candidate, Vacancy, Interview
+from NeopyteServer.settings import EMOTION_ANALYZER
+from .models import User, Candidate, Vacancy, Interview, InterviewProgress
 from .serializers import MyTokenObtainPairSerializer, RegisterSerializer, CandidateSerializer, VacancySerializer, \
     InterviewSerializer, UserSerializer
 
@@ -73,3 +82,49 @@ class InterviewViewSet(viewsets.ModelViewSet):
     serializer_class = InterviewSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication, JWTTokenUserAuthentication]
     permission_classes = [IsAuthenticated]
+
+
+class InterviewAnalyzeView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication, JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None, interview_id=None):
+        request_data = request.data
+        if not ("image" in request_data):
+            return HttpResponseBadRequest()
+        image = request_data['image']
+        w = request_data['width']
+        h = request_data['height']
+        jpg_original = base64.b64decode(image)
+        # with open("imageToSave.png", "wb") as fh:
+        #     fh.write(jpg_original)
+        decoded = cv2.imdecode(np.fromstring(jpg_original, np.uint8), -1)
+        res = EMOTION_ANALYZER.predict(decoded)
+        print(res)
+        res = list(res)
+        res[0] = int(res[0])
+        res = json.dumps(res)
+        interview_progress = InterviewProgress(
+            interview_id=interview_id,
+            datetime=datetime.now(),
+            result=res
+        )
+        interview_progress.save()
+        return Response()
+
+
+class InterviewResultView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication, JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None, interview_id=None):
+        interview_progresses = InterviewProgress.objects.filter(interview_id=interview_id)
+        content = dict()
+        if interview_progresses:
+            df = pd.DataFrame()
+            emotions = [json.loads(i.result) for i in interview_progresses]
+            data = pd.DataFrame(emotions)
+            res = data.groupby(1).count()
+            emotion_persent = res / len(data)
+            content = emotion_persent.to_dict()[0]
+        return Response(content)
